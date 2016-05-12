@@ -38,10 +38,12 @@ var margin = {top: 40, right: 10, bottom: 10, left: 10},
 
 var color = d3.scale.category20c();
 
+var globalArray = [];
+
 var treemap = d3.layout.treemap()
     .size([width, height])
     .sticky(true)
-    .value(function(d) { return d.size; });
+    .value(function(d) { return d.Actual_2013; });
 
 var div = d3.select("body").append("div")
     .style("position", "relative")
@@ -50,12 +52,12 @@ var div = d3.select("body").append("div")
     .style("left", margin.left + "px")
     .style("top", margin.top + "px");
 
-d3.json("flare.json", function(error, root) {
+/*d3.json("flare.json", function(error, root) {
   if (error) throw error;
 
   var node = div.datum(root).selectAll(".node")
       .data(treemap.nodes)
-    .enter().append("div")
+      .enter().append("div")
       .attr("class", "node")
       .call(position)
       .style("background", function(d) { return d.children ? color(d.name) : null; })
@@ -72,13 +74,93 @@ d3.json("flare.json", function(error, root) {
         .duration(1500)
         .call(position);
   });
+});*/
+
+var expenNested = [0,1,2,3];
+
+d3.csv("Expenditures-dollars.csv",function(expen) {
+  //if (error) throw error;
+
+  console.log(JSON.stringify(expen, null, 3));
+
+   /*return {
+    department: expen.Department,
+    program: expen.Program,
+    budg_2013: +expen.Adopted_2013,
+    budg_2014: +expen.Endorsed_2014
+};
+
+ expenNested = d3.nest()
+    .key(function(d) { return d.department; })
+    .entries(expen);
+
+  console.log(JSON.stringify(expenNested, null, 3));*/
+
+  //return (expen);
+
+},
+ 
+  
+  function(data) {
+       /* console.log(JSON.stringify(data, null, 3)); */
+
+        var expenNested = d3.nest()
+          .key(function(d) { return d.Department; })
+          .entries(data);
+
+        /*console.log(JSON.stringify(expenNested, null, 3));
+
+        globalArray = expenNested;*/
+
+        console.log(JSON.stringify(expenNested, null, 3));
+
+        console.log("test");
+
+       // return (expenNested);
+
+      //  console.log(JSON.stringify(data, null, 3));
+
+//Below is the code taken from the tree example above...
+
+ 
+
+var node = div.datum(expenNested).selectAll(".node")
+      .data(treemap.nodes)
+      .enter().append("div")
+      .attr("class", "node")
+      .call(position)
+      .style("background", function(d) { return d.children ? color(d.department) : null; })
+      .text(function(d) { return d.children ? null : d.program});
+
+      console.log("test");
+
+  d3.selectAll("input").on("change", function change() {
+    var value = this.value === "count"
+        ? function() { return 1; }
+        : function(d) { return d.budg_2014; };
+
+    node
+      .data(treemap.value(value).nodes)
+      .transition()
+      .duration(1500)
+      .call(position);
+
+    });
+
+//}, function(error, rows) {
+ //   console.log(rows);
+    
+
 });
+
+
 
 function position() {
   this.style("left", function(d) { return d.x + "px"; })
       .style("top", function(d) { return d.y + "px"; })
       .style("width", function(d) { return Math.max(0, d.dx - 1) + "px"; })
       .style("height", function(d) { return Math.max(0, d.dy - 1) + "px"; });
-}
+};
 
 </script>
+
